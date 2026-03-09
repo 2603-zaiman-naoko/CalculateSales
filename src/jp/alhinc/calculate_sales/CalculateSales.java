@@ -68,6 +68,18 @@ public class CalculateSales {
 			// 一行ずつ読み込む
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
+
+				//文字を分割する(区切った文字が設定されている)
+				String[] splitLine = line.split(",");
+
+				//区切った文字をキャストしbranchNamesへ設定する
+				branchNames.put(splitLine[0], splitLine[1]);
+				//System.out.println("支店コードと紐づく支店名：" + branchNames);
+
+				//keyに紐づくbranchSalesへ設定する(「0」円で追加)
+				branchSales.put(splitLine[0], 0L);
+				//System.out.println("支店コードと紐づく金額（0円）：" + branchSales);
+
 				System.out.println(line);
 			}
 
