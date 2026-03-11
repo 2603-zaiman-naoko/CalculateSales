@@ -48,35 +48,31 @@ public class CalculateSales {
 		//ファイル情報の格納用領域の宣言
 		List<File> rcdFiles = new ArrayList<>();
 
-		//ファイル名の格納用領域の宣言
-		String fileName = null;
-
 		//取得したファイルを取得件数分繰り返す
-		for(int i = 0; i < files.length; i++ ) {
+		for(int i = 0; i < files.length; i++) {
 
 			//ファイル名を取得する
-			fileName = files[i].getName();
+			String fileName = files[i].getName();
 
 			//拡張子がrcd、かつファイル名が数字8桁の場合
 			if(fileName.matches("[0-9]{8}.+rcd$")) {
 
 				//ファイル情報格納用領域へ設定する
 				rcdFiles.add(files[i]);
-				System.out.println( "登録ファイル情報" + files[i] );
 			}
 		}
 
 		//2-2
 		BufferedReader br = null;
 
-		try{
+		try {
 
 			//rcdFilesの件数分繰り返す
 			for(int i = 0; i < rcdFiles.size(); i++) {
 
 				//格納したファイルを読み込む
 				//List→.get()：指定した要素を取得/.getName()：ファイル名の取得
-				File file = new File(args[0],rcdFiles.get(i).getName());
+				File file = new File(args[0], rcdFiles.get(i).getName());
 				FileReader fr = new FileReader(file);
 				br = new BufferedReader(fr);
 
@@ -93,7 +89,6 @@ public class CalculateSales {
 
 				//fileSaleへ売上金額の値をキャストする
 				long fileSale = Long.parseLong(rcdDetailList.get(1));
-				System.out.println("売上金額：" + fileSale);
 
 				//branchSalesのkeyに紐づくvalueを取得する
 				Long saleAmount = branchSales.get(rcdDetailList.get(0));
@@ -103,8 +98,6 @@ public class CalculateSales {
 
 				//keyに紐づくbranchSalesへ設定する
 				branchSales.put(rcdDetailList.get(0), saleAmount);
-
-				System.out.println(branchSales);
 			}
 		} catch(IOException e) {
 			System.out.println(UNKNOWN_ERROR);
@@ -159,8 +152,6 @@ public class CalculateSales {
 
 				//keyに紐づくbranchSalesへ設定する(「0」円で追加)
 				branchSales.put(splitLine[0], 0L);
-
-				System.out.println(line);
 			}
 
 		} catch(IOException e) {
@@ -207,18 +198,22 @@ public class CalculateSales {
 				//key情報に紐づいた値を書き込む
 				//※keyにはMapのkeyが設定されている
 				//Mapの.get()：valueのみ取得する
-				//支店コードの書き込み
-				bw.write(key);
-				bw.write(",");
-
-				//支店名の書き込み
-				String branchNamesValue = branchNames.get(key);
-				bw.write(branchNamesValue);
-				bw.write(",");
-
-				//売上金額の書き込み(Long→String)
+//				//支店コードの書き込み
+//				bw.write(key);
+//				bw.write(",");
+//
+//				//支店名の書き込み
+//				String branchNamesValue = branchNames.get(key);
+//				bw.write(branchNamesValue);
+//				bw.write(",");
+//
+//				//売上金額の書き込み(Long→String)
+//				Long branchSalesValue = branchSales.get(key);
+//				bw.write(String.valueOf(branchSalesValue));
+//
+				//↓文字列の場合まとめて入れることができる
 				Long branchSalesValue = branchSales.get(key);
-				bw.write(String.valueOf(branchSalesValue));
+				bw.write(key + "," + branchNames.get(key) + "," + String.valueOf(branchSalesValue));
 
 				//改行追加
 				bw.newLine();
