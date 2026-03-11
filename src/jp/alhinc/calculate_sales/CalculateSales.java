@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ public class CalculateSales {
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
+	private static final String FILE_NOT_SERIAL_NUMBER = "売上ファイル名が連番になっていません";
+	private static final String NNMBER_DIGITS_EXCEEDED = "合計金額が10桁を超えました";
 
 	/**
 	 * メインメソッド
@@ -59,6 +62,31 @@ public class CalculateSales {
 
 				//ファイル情報格納用領域へ設定する
 				rcdFiles.add(files[i]);
+
+			}
+		}
+
+		//エラー処理2-1_売上ファイルの連番チェック
+		//連番チェック前のソート処理
+		Collections.sort(rcdFiles);
+
+		//売上ファイル-1回分繰り返す
+		for(int j = 0; j < rcdFiles.size() -1; j ++) {
+
+			//現在のファイル名
+			int former = Integer.parseInt(rcdFiles.get(j).getName().substring(0,8));
+
+			//次のファイル名
+			int latter = Integer.parseInt(rcdFiles.get(j+1).getName().substring(0,8));
+
+			//ファイル数値の比較(差が1ではない場合)
+			if(latter - former != 1) {
+
+				//エラーメッセージ「売上ファイル名が連番になっていません」を表示
+				System.out.println(FILE_NOT_SERIAL_NUMBER);
+
+				//処理を返却
+				return;
 			}
 		}
 
@@ -95,6 +123,22 @@ public class CalculateSales {
 
 				//読み込んだ売上金額を加算する
 				saleAmount += fileSale;
+
+				//エラー処理2-2_売上金額の合計が10桁超えチェック
+				if(saleAmount >= 10000000000L) {
+
+					//「合計金額が10桁を超えました」を表示
+					System.out.println(NNMBER_DIGITS_EXCEEDED);
+
+					//処理を返却
+					return;
+				}
+
+				//Mapに特定のKeyが存在するか確認する
+				if(!branchSales.containsKey(branchSales.keySet())) {
+
+				}
+
 
 				//keyに紐づくbranchSalesへ設定する
 				branchSales.put(rcdDetailList.get(0), saleAmount);
@@ -136,6 +180,16 @@ public class CalculateSales {
 
 		try {
 			File file = new File(path, fileName);
+
+			//エラー処理1-1_ファイルが存在しない場合
+			if(!file.exists()) {
+
+				System.out.println(FILE_NOT_EXIST);
+
+				//戻り値を返却する
+				return false;
+			}
+
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
 
@@ -146,6 +200,15 @@ public class CalculateSales {
 
 				//文字を分割する(区切った文字が設定されている)
 				String[] splitLine = line.split(",");
+
+				//エラー処理1-2_フォーマットが不正な場合
+				//3桁以外または、数値とカンマ区切り以外の場合
+				if((splitLine.length != 2 ) || (!splitLine[0].matches("^[0-9]{3}"))) {
+					System.out.println(FILE_INVALID_FORMAT);
+
+					//戻り値を返却する
+					return false;
+				}
 
 				//区切った文字をキャストしbranchNamesへ設定する
 				branchNames.put(splitLine[0], splitLine[1]);
