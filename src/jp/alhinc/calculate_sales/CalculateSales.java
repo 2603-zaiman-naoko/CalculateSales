@@ -25,7 +25,7 @@ public class CalculateSales {
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
 	private static final String FILE_NOT_SERIAL_NUMBER = "売上ファイル名が連番になっていません";
-	private static final String NNMBER_DIGITS_EXCEEDED = "合計金額が10桁を超えました";
+	private static final String NUMBER_DIGITS_EXCEEDED = "合計金額が10桁を超えました";
 	private static final String BRANCH_CODE_FRAUD = "の支店コードが不正です";
 	private static final String BRANCH_FORMAT_INVALID = "のフォーマットが不正です";
 
@@ -84,7 +84,7 @@ public class CalculateSales {
 		Collections.sort(rcdFiles);
 
 		//売上ファイル-1回分繰り返す
-		for(int i = 0; i < rcdFiles.size() - 1; i++) {
+		for(int i = 0; i < rcdFiles.size() -1; i++) {
 
 			//現在のファイル名
 			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0, 8));
@@ -172,7 +172,7 @@ public class CalculateSales {
 				if(saleAmount >= 10000000000L) {
 
 					//「合計金額が10桁を超えました」を表示
-					System.out.println(NNMBER_DIGITS_EXCEEDED);
+					System.out.println(NUMBER_DIGITS_EXCEEDED);
 
 					//処理を返却
 					return;
