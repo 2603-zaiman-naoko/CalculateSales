@@ -84,13 +84,13 @@ public class CalculateSales {
 		Collections.sort(rcdFiles);
 
 		//売上ファイル-1回分繰り返す
-		for(int j = 0; j < rcdFiles.size() -1; j ++) {
+		for(int i = 0; i < rcdFiles.size() - 1; i++) {
 
 			//現在のファイル名
-			int former = Integer.parseInt(rcdFiles.get(j).getName().substring(0,8));
+			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0, 8));
 
 			//次のファイル名
-			int latter = Integer.parseInt(rcdFiles.get(j+1).getName().substring(0,8));
+			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0, 8));
 
 			//ファイル数値の比較(差が1ではない場合)
 			if(latter - former != 1) {
@@ -129,21 +129,21 @@ public class CalculateSales {
 					rcdDetailList.add(line);
 				}
 
-				//エラー処理2-3_売上ファイルの支店コードが支店定義ファイルに該当しなかった場合
-				if(!branchSales.containsKey(rcdDetailList.get(0))) {
-
-					//「該当ファイル名(00000001.rcdなど)の支店コードが不正です」と表示
-					System.out.println(rcdFiles.get(i).getName() + BRANCH_CODE_FRAUD);
-
-					//処理を返却
-					return;
-				}
-
 				//エラー処理2-4_売上ファイルの中身が2行ではなかった場合
 				if(rcdDetailList.size() != 2) {
 
 					//エラーメッセージ「該当ファイル名(00000001.rcdなど)のフォーマットが不正です」と表示
 					System.out.println(rcdFiles.get(i).getName() + BRANCH_FORMAT_INVALID);
+
+					//処理を返却
+					return;
+				}
+
+				//エラー処理2-3_売上ファイルの支店コードが支店定義ファイルに該当しなかった場合
+				if(!branchSales.containsKey(rcdDetailList.get(0))) {
+
+					//「該当ファイル名(00000001.rcdなど)の支店コードが不正です」と表示
+					System.out.println(rcdFiles.get(i).getName() + BRANCH_CODE_FRAUD);
 
 					//処理を返却
 					return;
@@ -243,7 +243,7 @@ public class CalculateSales {
 
 				//エラー処理1-2_フォーマットが不正な場合
 				//3桁以外または、数値とカンマ区切り以外の場合
-				if((splitLine.length != 2 ) || (!splitLine[0].matches("^[0-9]{3}"))) {
+				if((splitLine.length != 2) || (!splitLine[0].matches("^[0-9]{3}"))) {
 
 					//エラーメッセージ「支店定義ファイルのフォーマットが不正です」を表示
 					System.out.println(FILE_INVALID_FORMAT);
@@ -298,25 +298,12 @@ public class CalculateSales {
 			bw = new BufferedWriter(fw);
 
 			//Mapから全てのKeyを取得する
-			for(String key : branchSales.keySet() ) {
+			for(String key : branchSales.keySet()) {
 
 				//key情報に紐づいた値を書き込む
 				//※keyにはMapのkeyが設定されている
 				//Mapの.get()：valueのみ取得する
-//				//支店コードの書き込み
-//				bw.write(key);
-//				bw.write(",");
-//
-//				//支店名の書き込み
-//				String branchNamesValue = branchNames.get(key);
-//				bw.write(branchNamesValue);
-//				bw.write(",");
-//
-//				//売上金額の書き込み(Long→String)
-//				Long branchSalesValue = branchSales.get(key);
-//				bw.write(String.valueOf(branchSalesValue));
-//
-				//↓文字列の場合まとめて入れることができる
+				//支店コード/支店名/売上金額(Long→String)の書き込み
 				Long branchSalesValue = branchSales.get(key);
 				bw.write(key + "," + branchNames.get(key) + "," + String.valueOf(branchSalesValue));
 
