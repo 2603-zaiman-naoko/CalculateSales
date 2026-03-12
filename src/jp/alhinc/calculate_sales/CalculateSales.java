@@ -26,6 +26,8 @@ public class CalculateSales {
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
 	private static final String FILE_NOT_SERIAL_NUMBER = "売上ファイル名が連番になっていません";
 	private static final String NNMBER_DIGITS_EXCEEDED = "合計金額が10桁を超えました";
+	private static final String BRANCH_CODE_FRAUD = "の支店コードが不正です";
+	private static final String BRANCH_FORMAT_INVALID = "のフォーマットが不正です";
 
 	/**
 	 * メインメソッド
@@ -33,6 +35,17 @@ public class CalculateSales {
 	 * @param コマンドライン引数
 	 */
 	public static void main(String[] args) {
+
+		//エラー処理3-1_コマンドライン引数の受け渡しチェック
+		if(args.length != 1) {
+
+			//エラーメッセージ「予期せぬエラーが発生しました」を表示
+			System.out.println(UNKNOWN_ERROR);
+
+			//処理を返却
+			return;
+		}
+
 		// 支店コードと支店名を保持するMap
 		Map<String, String> branchNames = new HashMap<>();
 		// 支店コードと売上金額を保持するMap
@@ -57,12 +70,12 @@ public class CalculateSales {
 			//ファイル名を取得する
 			String fileName = files[i].getName();
 
-			//拡張子がrcd、かつファイル名が数字8桁の場合
-			if(fileName.matches("[0-9]{8}.+rcd$")) {
+			//エラー処理3_ファイルかどうかの判定追加
+			//対象がファイルかつ、拡張子がrcd、かつファイル名が数字8桁の場合
+			if(files[i].isFile() && fileName.matches("[0-9]{8}.+rcd$")) {
 
 				//ファイル情報格納用領域へ設定する
 				rcdFiles.add(files[i]);
-
 			}
 		}
 
@@ -108,11 +121,42 @@ public class CalculateSales {
 				List<String> rcdDetailList = new ArrayList<>();
 
 				String line;
+
 				// 一行ずつ読み込む
 				while((line = br.readLine()) != null) {
 
 					//新規作成したrcdDetailListへ格納する
 					rcdDetailList.add(line);
+				}
+
+				//エラー処理2-3_売上ファイルの支店コードが支店定義ファイルに該当しなかった場合
+				if(!branchSales.containsKey(rcdDetailList.get(0))) {
+
+					//「該当ファイル名(00000001.rcdなど)の支店コードが不正です」と表示
+					System.out.println(rcdFiles.get(i).getName() + BRANCH_CODE_FRAUD);
+
+					//処理を返却
+					return;
+				}
+
+				//エラー処理2-4_売上ファイルの中身が2行ではなかった場合
+				if(rcdDetailList.size() != 2) {
+
+					//エラーメッセージ「該当ファイル名(00000001.rcdなど)のフォーマットが不正です」と表示
+					System.out.println(rcdFiles.get(i).getName() + BRANCH_FORMAT_INVALID);
+
+					//処理を返却
+					return;
+				}
+
+				//エラー処理3-2_売上ファイルの売上金額が数字ではなかった場合
+				if(!rcdDetailList.get(1).matches("^[0-9]+")) {
+
+					//エラーメッセージ「予期せぬエラーが発生しました」を表示
+					System.out.println(UNKNOWN_ERROR);
+
+					//処理を返却
+					return;
 				}
 
 				//fileSaleへ売上金額の値をキャストする
@@ -133,12 +177,6 @@ public class CalculateSales {
 					//処理を返却
 					return;
 				}
-
-				//Mapに特定のKeyが存在するか確認する
-				if(!branchSales.containsKey(branchSales.keySet())) {
-
-				}
-
 
 				//keyに紐づくbranchSalesへ設定する
 				branchSales.put(rcdDetailList.get(0), saleAmount);
@@ -184,6 +222,7 @@ public class CalculateSales {
 			//エラー処理1-1_ファイルが存在しない場合
 			if(!file.exists()) {
 
+				//エラーメッセージ「支店定義ファイルが存在しません」を表示
 				System.out.println(FILE_NOT_EXIST);
 
 				//戻り値を返却する
@@ -194,6 +233,7 @@ public class CalculateSales {
 			br = new BufferedReader(fr);
 
 			String line;
+
 			// 一行ずつ読み込む
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
@@ -204,6 +244,8 @@ public class CalculateSales {
 				//エラー処理1-2_フォーマットが不正な場合
 				//3桁以外または、数値とカンマ区切り以外の場合
 				if((splitLine.length != 2 ) || (!splitLine[0].matches("^[0-9]{3}"))) {
+
+					//エラーメッセージ「支店定義ファイルのフォーマットが不正です」を表示
 					System.out.println(FILE_INVALID_FORMAT);
 
 					//戻り値を返却する
