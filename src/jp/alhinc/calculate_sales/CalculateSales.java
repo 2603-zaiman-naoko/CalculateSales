@@ -36,6 +36,7 @@ public class CalculateSales {
 	private static final String BRANCH_FORMAT_INVALID = "のフォーマットが不正です";
 	private static final String COMMODITY_FILE_INVALID_FORMAT = "商品定義ファイルのフォーマットが不正です";
 	private static final String COMMODITY_FILE_NOT_EXIST = "商品定義ファイルが存在しません";
+	private static final String COMMODITY_CODE_FRAUD = "の商品コードが不正です";
 
 	/**
 	 * メインメソッド
@@ -149,15 +150,6 @@ public class CalculateSales {
 					rcdDetailList.add(line);
 				}
 
-//				//エラー処理2-4_売上ファイルの中身が2行ではなかった場合
-//				if(rcdDetailList.size() != 2) {
-//
-//					//エラーメッセージ「該当ファイル名(00000001.rcdなど)のフォーマットが不正です」と表示
-//					System.out.println(rcdFiles.get(i).getName() + BRANCH_FORMAT_INVALID);
-//
-//					//処理を返却
-//					return;
-//				}
 				//エラー処理2-5_売上ファイルの中身が3行ではなかった場合
 				if(rcdDetailList.size() != 3) {
 
@@ -178,15 +170,16 @@ public class CalculateSales {
 					return;
 				}
 
-//				//エラー処理3-2_売上ファイルの売上金額が数字ではなかった場合
-//				if(!rcdDetailList.get(1).matches("^[0-9]+")) {
-//
-//					//エラーメッセージ「予期せぬエラーが発生しました」を表示
-//					System.out.println(UNKNOWN_ERROR);
-//
-//					//処理を返却
-//					return;
-//				}
+				// エラー処理2-4_売上ファイルの商品コードが商品定義ファイルに該当しなかった場合
+				if(!commoditySales.containsKey(rcdDetailList.get(1))) {
+
+					//「該当ファイル名(00000001.rcdなど)の商品コードが不正です」と表示
+					System.out.println(rcdFiles.get(i).getName() + COMMODITY_CODE_FRAUD);
+
+					//処理を返却
+					return;
+				}
+
 				//エラー処理3-2_売上ファイルの売上金額が数字ではなかった場合
 				if(!rcdDetailList.get(2).matches("^[0-9]+")) {
 
@@ -229,7 +222,7 @@ public class CalculateSales {
 				//読み込んだ売上金額を加算する
 				commoditySaleAmount += commoditySale;
 
-				//エラー処理2-2_売上金額の合計が10桁超えチェック
+				//エラー処理2-2（追加）_売上金額の合計が10桁超えチェック
 				if(commoditySaleAmount >= 10000000000L) {
 
 					//「合計金額が10桁を超えました」を表示
@@ -332,7 +325,7 @@ public class CalculateSales {
 				if(fileName == FILE_NAME_BRANCH_LST) {
 
 					//エラー処理1-2_フォーマットが不正な場合
-					//3桁以外または、数値とカンマ区切り以外の場合
+					//2桁以外または、数値とカンマ区切り以外の場合
 					if((splitLine.length != 2) || (!splitLine[0].matches("^[0-9]{3}"))) {
 
 						//エラーメッセージ「支店定義ファイルのフォーマットが不正です」を表示
@@ -352,8 +345,8 @@ public class CalculateSales {
 				// 商品定義ファイルの場合
 				if(fileName == FILE_NAME_COMMODITY_LST) {
 
-					// フォーマットが不正な場合
-					// ファイル内が2行以外の場合または、英数字8桁以外の場合
+					// エラー処理1-4_フォーマットが不正な場合
+					// ファイル内が2行以外の場合または、商品コードが英数字8桁以外の場合
 					if((splitLine.length != 2) || (!splitLine[0].matches("^[a-zA-Z0-9]{8}+"))) {
 
 						//エラーメッセージ「商品定義ファイルのフォーマットが不正です」を表示
