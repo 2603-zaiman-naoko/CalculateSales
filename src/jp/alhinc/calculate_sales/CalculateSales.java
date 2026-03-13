@@ -271,6 +271,7 @@ public class CalculateSales {
 	 * @param 支店コードと支店名を保持するMap
 	 * @param 支店コードと売上金額を保持するMap
 	 * @param 商品コードと商品名を保持するMap
+	 * @param 商品コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
 	private static boolean readFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales, Map<String, String> commodityName, Map<String, Long> commoditySales) {
@@ -389,6 +390,8 @@ public class CalculateSales {
 	 * @param ファイル名
 	 * @param 支店コードと支店名を保持するMap
 	 * @param 支店コードと売上金額を保持するMap
+	 * @param 商品コードと商品名を保持するMap
+	 * @param 商品コードと売上金額を保持するMap
 	 * @return 書き込み可否
 	 */
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales, Map<String, String> commodityName, Map<String, Long> commoditySales) {
