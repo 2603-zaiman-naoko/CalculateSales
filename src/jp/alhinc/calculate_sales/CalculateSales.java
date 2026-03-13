@@ -27,6 +27,8 @@ public class CalculateSales {
 	private static final String FILE_NAME_COMMODITY_OUT = "commodity.out";
 
 	// エラーメッセージ
+	private static final String BRANCH_DEFINITION = "支店定義";
+	private static final String COMMODITY_DEFINITION = "商品定義";
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
 	private static final String FILE_NOT_EXIST = "ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "ファイルのフォーマットが不正です";
@@ -35,6 +37,7 @@ public class CalculateSales {
 	private static final String BRANCH_CODE_FRAUD = "の支店コードが不正です";
 	private static final String BRANCH_FORMAT_INVALID = "のフォーマットが不正です";
 	private static final String COMMODITY_CODE_FRAUD = "の商品コードが不正です";
+
 	/**
 	 * メインメソッド
 	 *
@@ -63,7 +66,7 @@ public class CalculateSales {
 
 		// 支店定義ファイル読み込み処理
 		if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales,
-				"支店定義", "^[0-9]{3}")) {
+				BRANCH_DEFINITION, "^[0-9]{3}")) {
 			return;
 		}
 
@@ -71,7 +74,7 @@ public class CalculateSales {
 		// コマンドライン引数で指定されたディレクトリから商品定義ファイルを開く
 		// 商品定義ファイ読み込み処理
 		if(!readFile(args[0], FILE_NAME_COMMODITY_LST, commodityName, commoditySales,
-				"商品定義", "^[a-zA-Z0-9]{8}+")) {
+				COMMODITY_DEFINITION, "^[a-zA-Z0-9]{8}+")) {
 			return;
 		}
 
@@ -192,10 +195,10 @@ public class CalculateSales {
 				long fileSale = Long.parseLong(rcdDetailList.get(2));
 
 				// 支店コードの取得
-				String branchCode= rcdDetailList.get(0);
+				String branchCode = rcdDetailList.get(0);
 
 				// 商品コードの取得
-				String commodityCode= rcdDetailList.get(1);
+				String commodityCode = rcdDetailList.get(1);
 
 				//branchSalesのkeyに紐づくvalueを取得する
 				Long saleAmount = branchSales.get(branchCode);
@@ -265,8 +268,8 @@ public class CalculateSales {
 	 * @param 正規表現
 	 * @return 読み込み可否
 	 */
-	private static boolean readFile(String path, String fileName, Map<String, String> Names, Map<String, Long> Sales,
-			String ErrorMessage, String regularExpression) {
+	private static boolean readFile(String path, String fileName, Map<String, String> names, Map<String, Long> sales,
+			String errorMessage, String regularExpression) {
 		BufferedReader br = null;
 
 		try {
@@ -276,7 +279,7 @@ public class CalculateSales {
 			if(!file.exists()) {
 
 				// エラーメッセージを表示
-				System.out.println(ErrorMessage + FILE_NOT_EXIST);
+				System.out.println(errorMessage + FILE_NOT_EXIST);
 
 				// 戻り値を返却する
 				return false;
@@ -298,17 +301,17 @@ public class CalculateSales {
 				if((splitLine.length != 2) || (!splitLine[0].matches(regularExpression))) {
 
 					//エラーメッセージを表示
-					System.out.println(ErrorMessage + FILE_INVALID_FORMAT);
+					System.out.println(errorMessage + FILE_INVALID_FORMAT);
 
 					//戻り値を返却する
 					return false;
 				}
 
 				//区切った文字をキャストしNameへ設定する
-				Names.put(splitLine[0], splitLine[1]);
+				names.put(splitLine[0], splitLine[1]);
 
 				//keyに紐づくSalesへ設定する(「0」円で追加)
-				Sales.put(splitLine[0], 0L);
+				sales.put(splitLine[0], 0L);
 			}
 
 		} catch(IOException e) {
@@ -338,7 +341,7 @@ public class CalculateSales {
 	 * @param コードと売上金額を保持するMap
 	 * @return 書き込み可否
 	 */
-	private static boolean writeFile(String path, String fileName, Map<String, String> Names, Map<String, Long> Sales) {
+	private static boolean writeFile(String path, String fileName, Map<String, String> names, Map<String, Long> sales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)
 
 		BufferedWriter bw = null;
@@ -351,14 +354,14 @@ public class CalculateSales {
 
 			// 3-2_全商品の商品コード、商品名、合計金額を出力
 			//Mapから全てのKeyを取得する
-			for(String key : Sales.keySet()) {
+			for(String key : sales.keySet()) {
 
 				//key情報に紐づいた値を書き込む
 				//※keyにはMapのkeyが設定されている
 				//Mapの.get()：valueのみ取得する
 				//コード/名称/売上金額(Long→String)の書き込み
-				Long SalesValue = Sales.get(key);
-				bw.write(key + "," + Names.get(key) + "," + String.valueOf(SalesValue));
+				Long SalesValue = sales.get(key);
+				bw.write(key + "," + names.get(key) + "," + String.valueOf(SalesValue));
 
 				//改行追加
 				bw.newLine();
